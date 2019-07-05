@@ -14,7 +14,7 @@
 #define AIO_USERNAME    "siddhesh"
 #define AIO_KEY         "402abd741aae4a42b3847b22c71e6693"  // Obtained from account info on io.adafruit.com
 
-int led =16;
+//int led =16;
 int pwmValue =1023;
 int trigPin1 = 15;
 int echoPin1 = 13;
@@ -45,7 +45,7 @@ void setup() {
   // pinMode(2, OUTPUT);
    pinMode(lmotorA, OUTPUT); 
    pinMode(lmotorB, OUTPUT);
-   pinMode(led,OUTPUT);
+  // pinMode(led,OUTPUT);
    pinMode(trigPin1, OUTPUT); // Sets the trigPin as an Output
    pinMode(echoPin1, INPUT); // Sets the echoPin as an Input
    pinMode(trigPin2, OUTPUT); // Sets the trigPin as an Output
@@ -91,28 +91,40 @@ void loop() {
       mqtt.connect();
   }
   
-  for(int i=0; i<5; i++){
+  for(int i=0; i<3; i++){
      distance+=measureDistance(trigPin1,echoPin1);
-     delay(5);
+     delay(2);
   }
   distance = distance/5;
   Serial.print("Distance: ");
   Serial.println(distance);
-  if(distance < 30){
-     digitalWrite(led, LOW);
+  if(distance < 30 && dustbinEmpty == false){
+     //digitalWrite(led, LOW);
+     openBin();
+     delay(2000);
+     //stopMotor();
+     delay(10000);
+     closeBin();
+     //digitalWrite(led, HIGH);
+     delay(200);
+     stopMotor(); 
+     delay(3000);
+  }
+  if(distance < 30 && dustbinEmpty == true){
+     //digitalWrite(led, LOW);
      openBin();
      delay(2000);
      //stopMotor();
      delay(5000);
      closeBin();
-     digitalWrite(led, HIGH);
+     //digitalWrite(led, HIGH);
      delay(200);
      stopMotor(); 
      delay(3000);
-  }
-  for(int i=0; i<5; i++){
+  }  
+  for(int i=0; i<3; i++){
      dustbinHeight+=measureDistance(trigPin2,echoPin2);
-     delay(5);
+     delay(2);
    } 
   dustbinHeight = dustbinHeight/5;
   Serial.print("Dustbin height: ");
