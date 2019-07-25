@@ -13,7 +13,7 @@
 #define AIO_SERVERPORT  1883
 #define AIO_USERNAME    "siddhesh"
 #define AIO_KEY         "402abd741aae4a42b3847b22c71e6693"  // Obtained from account info on io.adafruit.com
-
+byte count = 0;
 //int led =16;
 int pwmValue =1023;
 int trigPin1 = 15;
@@ -24,6 +24,7 @@ long duration;
 int distance;
 int lmotorA=4;
 int lmotorB=0;
+int enA = 5;
 int dustbinHeightLimit=10;
 int dustbinHeight = 0;
 int dustbinStatus = 0;
@@ -45,6 +46,7 @@ void setup() {
   // pinMode(2, OUTPUT);
    pinMode(lmotorA, OUTPUT); 
    pinMode(lmotorB, OUTPUT);
+   pinMode(enA, OUTPUT);
   // pinMode(led,OUTPUT);
    pinMode(trigPin1, OUTPUT); // Sets the trigPin as an Output
    pinMode(echoPin1, INPUT); // Sets the echoPin as an Input
@@ -83,50 +85,53 @@ void setup() {
 }
 
 void loop() {
-
-  // ping adafruit io a few times to make sure we remain connected
-  if(! mqtt.ping(3)) {
-    // reconnect to adafruit io
-    if(! mqtt.connected())
-      mqtt.connect();
+  if(count == 10){
+    Serial.println("connecting");
+    // ping adafruit io a few times to make sure we remain connected
+    if(! mqtt.ping(3)) {
+      // reconnect to adafruit io
+      if(! mqtt.connected())
+        mqtt.connect();
+    }
+   count = 0;
   }
-  
-  for(int i=0; i<3; i++){
+  for(int i=0; i<2; i++){
      distance+=measureDistance(trigPin1,echoPin1);
      delay(2);
   }
-  distance = distance/5;
+  distance = distance/2;
   Serial.print("Distance: ");
   Serial.println(distance);
   if(distance < 30 && dustbinEmpty == false){
      //digitalWrite(led, LOW);
      openBin();
-     delay(2000);
+     delay(12000);
      //stopMotor();
-     delay(10000);
+    // delay(10000);
      closeBin();
      //digitalWrite(led, HIGH);
      delay(200);
      stopMotor(); 
-     delay(3000);
+     delay(5000);
   }
   if(distance < 30 && dustbinEmpty == true){
      //digitalWrite(led, LOW);
      openBin();
-     delay(2000);
+     delay(7000);
      //stopMotor();
-     delay(5000);
+     //delay(5000);
      closeBin();
      //digitalWrite(led, HIGH);
      delay(200);
      stopMotor(); 
-     delay(3000);
+     delay(5000);
   }  
   for(int i=0; i<3; i++){
      dustbinHeight+=measureDistance(trigPin2,echoPin2);
      delay(2);
+     if(i==2) count= count+1;
    } 
-  dustbinHeight = dustbinHeight/5;
+  dustbinHeight = dustbinHeight/3;
   Serial.print("Dustbin height: ");
   Serial.println(dustbinHeight);
   if((dustbinHeight < dustbinHeightLimit) && messageSent == false){
@@ -139,7 +144,7 @@ void loop() {
      messageSent = true;
      dustbinEmpty = false;
      Serial.print("Dustbin full");
-     delay(1000);
+     delay(500);
   }
   if(messageSent == true && dustbinEmpty == false && dustbinHeight >17){
      dustbinEmpty = true;
@@ -171,6 +176,7 @@ int measureDistance(int trigger_pin, int echo_pin){
 }
 void stopMotor(void)
 {
+   analogWrite(enA,0);
     digitalWrite(lmotorA, LOW);  
   digitalWrite(lmotorB, LOW);
     //analogWrite(5, 0);
@@ -180,8 +186,13 @@ void stopMotor(void)
  
 void openBin(void)
 {
-   digitalWrite(lmotorA, LOW);  
-  digitalWrite(lmotorB, HIGH);
+  digitalWrite(lmotorA, LOW);  
+  digitalWrite(lmotorB, HIGH);  
+ /* for(int i=0; i<=512; i+8){
+   analogWrite(enA,i);
+   delay(1);
+  }*/
+  analogWrite(enA,1023);
    // analogWrite(5, pwmValue);
    // analogWrite(4, pwmValue);
    // digitalWrite(0, HIGH);
@@ -191,6 +202,7 @@ void openBin(void)
 
 void closeBin(void)
 {
+    analogWrite(enA,0);
     digitalWrite(lmotorA, HIGH);  
     digitalWrite(lmotorB, LOW);
     //analogWrite(5, pwmValue);
