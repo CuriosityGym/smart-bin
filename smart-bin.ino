@@ -11,8 +11,8 @@
 // Adafruit IO
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883
-#define AIO_USERNAME    "xxxxxxxxxx"
-#define AIO_KEY         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  // Obtained from account info on io.adafruit.com
+#define AIO_USERNAME    "yourUserName"
+#define AIO_KEY         "yourAdfruitIOkey"  // Obtained from account info on io.adafruit.com
 byte count = 0;
 //int led =16;
 int pwmValue =1023;
